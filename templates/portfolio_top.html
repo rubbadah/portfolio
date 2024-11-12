@@ -206,7 +206,7 @@
                                                 aria-labelledby="pickupHeading{{ loop.index }}"
                                                 data-bs-parent="#workPickupAccordion">
                                                 <div class="accordion-body">
-                                                    <p>{{ work.description }}</p>
+                                                    <p>{{ work.description | safe }}</p>
                                                     <p>
                                                         <strong>担当工程:</strong>
                                                         {% for process in work.processes %}
@@ -264,7 +264,7 @@
                                                 aria-labelledby="allHeading{{ loop.index }}"
                                                 data-bs-parent="#workAllAccordion">
                                                 <div class="accordion-body">
-                                                    <p>{{ work.description }}</p>
+                                                    <p>{{ work.description | safe }}</p>
                                                     <p>
                                                         <strong>担当工程:</strong>
                                                         {% for process in work.processes %}
@@ -295,7 +295,7 @@
                                     class="card-img-top" alt="{{ project.title }}" />
                                 <div class="card-body">
                                     <h5 class="card-title">{{ project.title }}</h5>
-                                    <p class="card-text">{{ project.description }}</p>
+                                    <p class="card-text">{{ project.description | safe }}</p>
                                     <div class="d-flex gap-2">
                                         {% if project.detail_url %}
                                         <a href="{{ project.detail_url }}" class="btn btn-primary" target="_blank">
