@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<!--nobanner-->
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>アヒルの部屋</title>
+    <!-- Favicon -->
+    <link rel="icon" href="/static/images/icon_rubbadah.png" type="image/png" />
+    <!-- Bootstrap CSS -->
+    <link href="/static/external/bootstrap/bootstrap.css" rel="stylesheet" />
+    <!-- Bootstrap Icons -->
+    <link href="/static/external/bootstrap-icons-1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <!-- ナビゲーションバー -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">アヒルの部屋</a>
+        </div>
+    </nav>
+
+    <!-- メインコンテンツ -->
+    <div class="container mt-5">
+        <div class="row">
+            <!-- メインコンテンツエリア -->
+            <div class="col-lg-9">
+                <!-- プロフィール -->
+                {% if items.profile %}
+                <section id="profile" class="mb-5">
+                    <div class="row">
+                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                            <img src="{{ items.profile.image_path or 'https://via.placeholder.com/300' }}"
+                                class="img-fluid rounded-circle h-75" alt="プロフィール写真" />
+                        </div>
+                        <div class="col-md-8">
+                            <h2>プロフィール</h2>
+                            <p class="fs-5 fw-bolder mb-0">{{ items.profile.name }}</p>
+                            <p>{{ items.profile.description | safe }}</p>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- 生い立ち -->
+                {% if items.backgrounds %}
+                <section id="background" class="mb-5">
+                    <h2>生い立ち</h2>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="list-group" id="list-tab" role="tablist">
+                                {% for era in items.backgrounds %}
+                                <a class="list-group-item list-group-item-action {% if loop.last %}active{% endif %}"
+                                    id="background-title-{{ '%02d' % loop.index }}" data-bs-toggle="list"
+                                    href="#background-content-{{ '%02d' % loop.index }}" role="tab"
+                                    aria-controls="{{ era.title }}">
+                                    {{ era.title }}
+                                    <br />
+                                    <small>({{ era.start_period }}～{{ era.end_period }})</small>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="tab-content" id="list-nav-tabContent">
+                                {% for era in items.backgrounds %}
+                                <div class="tab-pane fade {% if loop.last %}show active{% endif %}"
+                                    id="background-content-{{ '%02d' % loop.index }}" role="tabpanel"
+                                    aria-labelledby="background-title-{{ '%02d' % loop.index }}">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            {% for event in era.events %}
+                                            <tr>
+                                                <td style="white-space: nowrap">
+                                                    {% if event.is_single %}
+                                                    {{ event.start_period }}年
+                                                    {% else %}
+                                                    {{ event.start_period }}年～
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ event.description }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    {% if era.description %}
+                                    <hr />
+                                    <p>{{ era.description | safe }}</p>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- スキル -->
+                {% if items.levels and (items.skill_charts.front.labels or items.skill_charts.back.labels or items.skill_charts.db.labels) %}
+                <section id="skills-star-rating" class="mb-5">
+                    <h2>スキル</h2>
+                    <!-- スキルの評価 -->
+                    <div class="row row-cols-1 row-cols-md-3 g-2">
+                        {% for category, chart in items.skill_charts.items() %}
+                        {% if chart.labels %}
+                        <div class="col">
+                            <div class="mb-3">
+                                <h5 class="text-center">{{ chart.category_name }}</h5>
+                                <canvas id="myChart{{ category | capitalize }}"></canvas>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="level-description mb-4 row">
+                        <div class="col-md-6">
+                            <div class="accordion" id="levelAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="levelDescriptionHeader">
+                                        <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#levelDescriptionContent"
+                                            aria-expanded="false" aria-controls="levelDescriptionContent">
+                                            スキルレベル概要
+                                        </button>
+                                    </h2>
+                                    <div id="levelDescriptionContent" class="accordion-collapse collapse"
+                                        aria-labelledby="levelDescriptionHeader" data-bs-parent="#levelAccordion">
+                                        <div class="accordion-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm">
+                                                    <tbody>
+                                                        {% for level in items.levels %}
+                                                        <tr>
+                                                            <th scope="row" class="text-center" style="width: 80px;">
+                                                                {{ level.level }}
+                                                            </th>
+                                                            <td>{{ level.description }}</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </section>
+                {% endif %}
+
+                <!-- スキルチャートのデータを埋め込み -->
+                {{ items.skill_charts | embed_as_json('skillChartData') | safe }}
+
+                <!-- 業務（ピックアップ） -->
+                {% if items.works %}
+                <section id="work" class="mb-5">
+                    <h2>業務経歴</h2>
+                    <div class="accordion" id="workAccordionFlush">
+                        <!-- ピックアップ業務 -->
+                        <div class="accordion-item border border-0">
+                            <h2 class="accordion-header" id="flush-heading-pickup">
+                                <button class="accordion-button rounded-0" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#flush-collapse-pickup" aria-expanded="true"
+                                    aria-controls="flush-collapse-pickup">
+                                    <h3>ピックアップ</h3>
+                                </button>
+                            </h2>
+                            <div id="flush-collapse-pickup" class="accordion-collapse collapse show"
+                                aria-labelledby="flush-heading-pickup" data-bs-parent="#workAccordionFlush">
+                                <div class="accordion-body">
+                                    <div class="accordion" id="workPickupAccordion">
+                                        {% for work in items.works %}
+                                        {% if work.is_pickup %}
+                                        <div class="accordion-item rounded border">
+                                            <h2 class="accordion-header" id="pickupHeading{{ loop.index }}">
+                                                <button class="accordion-button collapsed" type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#pickupCollapse{{ loop.index }}"
+                                                    aria-expanded="false"
+                                                    aria-controls="pickupCollapse{{ loop.index }}">
+                                                    <div>
+                                                        {{ work.title }}
+                                                        <br />
+                                                        <small>
+                                                            <strong>期間:</strong> {{ work.start_period }} -
+                                                            {{ work.end_period }}
+                                                        </small>
+                                                        <br />
+                                                        <small>
+                                                            <strong>使用技術:</strong>
+                                                            {% for tech in work.technologies %}
+                                                            {{ tech.name }}{% if not loop.last %}, {% endif %}
+                                                            {% endfor %}
+                                                        </small>
+                                                    </div>
+                                                </button>
+                                            </h2>
+                                            <div id="pickupCollapse{{ loop.index }}" class="accordion-collapse collapse"
+                                                aria-labelledby="pickupHeading{{ loop.index }}"
+                                                data-bs-parent="#workPickupAccordion">
+                                                <div class="accordion-body">
+                                                    <p>{{ work.description }}</p>
+                                                    <p>
+                                                        <strong>担当工程:</strong>
+                                                        {% for process in work.processes %}
+                                                        {{ process.name }}{% if not loop.last %}, {% endif %}
+                                                        {% endfor %}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- すべての業務 -->
+                        <div class="accordion-item border border-0">
+                            <h2 class="accordion-header" id="flush-heading-all">
+                                <button class="accordion-button collapsed rounded-0 border-top" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#flush-collapse-all" aria-expanded="false"
+                                    aria-controls="flush-collapse-all">
+                                    <h3>すべて</h3>
+                                </button>
+                            </h2>
+                            <div id="flush-collapse-all" class="accordion-collapse collapse"
+                                aria-labelledby="flush-heading-all" data-bs-parent="#workAccordionFlush">
+                                <div class="accordion-body">
+                                    <div class="accordion" id="workAllAccordion">
+                                        {% for work in items.works %}
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="allHeading{{ loop.index }}">
+                                                <button class="accordion-button collapsed" type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#allCollapse{{ loop.index }}" aria-expanded="false"
+                                                    aria-controls="allCollapse{{ loop.index }}">
+                                                    <div>
+                                                        {{ work.title }}
+                                                        <br />
+                                                        <small>
+                                                            <strong>期間:</strong> {{ work.start_period }} -
+                                                            {{ work.end_period }}
+                                                        </small>
+                                                        <br />
+                                                        <small>
+                                                            <strong>使用技術:</strong>
+                                                            {% for tech in work.technologies %}
+                                                            {{ tech.name }}{% if not loop.last %}, {% endif %}
+                                                            {% endfor %}
+                                                        </small>
+                                                    </div>
+                                                </button>
+                                            </h2>
+                                            <div id="allCollapse{{ loop.index }}" class="accordion-collapse collapse"
+                                                aria-labelledby="allHeading{{ loop.index }}"
+                                                data-bs-parent="#workAllAccordion">
+                                                <div class="accordion-body">
+                                                    <p>{{ work.description }}</p>
+                                                    <p>
+                                                        <strong>担当工程:</strong>
+                                                        {% for process in work.processes %}
+                                                        {{ process.name }}{% if not loop.last %}, {% endif %}
+                                                        {% endfor %}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- 成果物 -->
+                {% if items.projects %}
+                <section id="projects" class="mb-5">
+                    <h2>成果物</h2>
+                    <div class="row row-cols-1 row-cols-md-3 g-2">
+                        {% for project in items.projects %}
+                        <div class="col">
+                            <div class="card h-100">
+                                <img src="{{ project.image_path or 'https://via.placeholder.com/300' }}"
+                                    class="card-img-top" alt="{{ project.title }}" />
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ project.title }}</h5>
+                                    <p class="card-text">{{ project.description }}</p>
+                                    <div class="d-flex gap-2">
+                                        {% if project.detail_url %}
+                                        <a href="{{ project.detail_url }}" class="btn btn-primary" target="_blank">
+                                            <i class="bi bi-journal"></i> 詳細
+                                        </a>
+                                        {% endif %}
+                                        {% if project.demo_url %}
+                                        <a href="{{ project.demo_url }}" class="btn btn-success" target="_blank">
+                                            <i class="bi bi-play-circle"></i> 実物
+                                        </a>
+                                        {% endif %}
+                                        {% if project.github_url %}
+                                        <a href="{{ project.github_url }}" class="btn btn-dark" target="_blank">
+                                            <i class="bi bi-github"></i> GitHub
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mt-2">
+                                        {% for tech in project.technologies %}
+                                        <span class="badge bg-secondary">{{ tech.name }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+            </div>
+
+            <!-- 右側ナビゲーション -->
+            <div class="col-lg-3 d-none d-lg-block">
+                <nav class="position-sticky" style="top: 2rem;">
+                    <div class="list-group">
+                        <a href="#profile" class="list-group-item list-group-item-action">プロフィール</a>
+                        <a href="#background" class="list-group-item list-group-item-action">生い立ち</a>
+                        <a href="#skills-star-rating" class="list-group-item list-group-item-action">スキル</a>
+                        <a href="#work" class="list-group-item list-group-item-action">業務経歴</a>
+                        <a href="#projects" class="list-group-item list-group-item-action">成果物</a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-9 text-center">
+                <script type="text/javascript" src="https://cache1.value-domain.com/xa.j?site=rubbadah.s322.xrea.com"></script>
+                <div style="font-size: 0.65rem;">※レンタルサーバーの規約により、広告を表示しています</div>
+            </div>
+        </div>
+    </div>
+    <!-- フッター -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">
+                        <small>&copy; 2024 {{ items.profile.name }}</small>
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="social-links">
+                        {% for contact in items.contacts %}
+                            {% if contact.type == 'github' %}
+                                <a href="{{ contact.value }}" class="text-light me-3 text-decoration-none" target="_blank">
+                                    <i class="bi bi-github"></i>
+                                </a>
+                            {% elif contact.type == 'email' %}
+                                <a href="mailto:{{ contact.value }}" class="text-light text-decoration-none">
+                                    <i class="bi bi-envelope"></i>
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="/static/external/bootstrap/bootstrap.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="/static/external/chart/chart.umd.js"></script>
+    <script>
+        // スキルのチャート描画
+        function createRadarChart(canvasId, labels, data, backgroundColor) {
+            var ctx = document.getElementById(canvasId).getContext("2d");
+            new Chart(ctx, {
+                type: "radar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColor,
+                        pointRadius: 0.5,
+                    }, ],
+                },
+                options: {
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 5,
+                            ticks: {
+                                stepSize: 1,
+                            },
+                        },
+                    },
+                    plugins: {
+                        legend: {
+                            display: false,
+                        },
+                    },
+                },
+            });
+        }
+
+        // 埋め込まれたJSONデータを取得
+        const chartData = JSON.parse(document.getElementById('skillChartData').textContent);
+
+        // チャートの描画
+        for (const [category, data] of Object.entries(chartData)) {
+            if (data.labels && data.labels.length > 0) {
+                createRadarChart(
+                    `myChart${category.charAt(0).toUpperCase() + category.slice(1)}`,
+                    data.labels,
+                    data.values,
+                    data.backgroundColor
+                );
+            }
+        }
+    </script>
+</body>
+
+</html>
