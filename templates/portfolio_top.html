@@ -17,8 +17,6 @@
             scroll-behavior: smooth;
         }
     </style>
-
-
 </head>
 
 <body>
@@ -330,22 +328,34 @@
             </div>
 
             <!-- 右側ナビゲーション -->
+            {% if items.profile or items.backgrounds or (items.levels and (items.skill_charts.front.labels or items.skill_charts.back.labels or items.skill_charts.db.labels)) or items.works or items.projects %}
             <div class="col-lg-3 d-none d-lg-block">
                 <nav class="position-sticky" style="top: 2rem;">
                     <div class="list-group">
+                        {% if items.profile %}
                         <a href="#profile" class="list-group-item list-group-item-action">プロフィール</a>
+                        {% endif %}
+                        {% if items.backgrounds %}
                         <a href="#background" class="list-group-item list-group-item-action">生い立ち</a>
+                        {% endif %}
+                        {% if items.levels and (items.skill_charts.front.labels or items.skill_charts.back.labels or items.skill_charts.db.labels) %}
                         <a href="#skills-star-rating" class="list-group-item list-group-item-action">スキル</a>
+                        {% endif %}
+                        {% if items.works %}
                         <a href="#work" class="list-group-item list-group-item-action">業務経歴</a>
+                        {% endif %}
+                        {% if items.projects %}
                         <a href="#projects" class="list-group-item list-group-item-action">成果物</a>
+                        {% endif %}
                     </div>
                 </nav>
             </div>
+            {% endif %}
         </div>
         <div class="row">
             <div class="col-lg-9 text-center">
                 <script type="text/javascript" src="https://cache1.value-domain.com/xa.j?site=rubbadah.s322.xrea.com"></script>
-                <div style="font-size: 0.65rem;">※レンタルサーバーの規約により、広告を表示しています</div>
+                <div style="font-size: 0.65rem;">※レンタルサーバの規約により、広告を表示しています</div>
             </div>
         </div>
     </div>
