@@ -4,7 +4,7 @@
 
 Python/Flask を使用して作成したシンプルなポートフォリオサイト。  
 表示する情報はほとんどを DB に持たせることで、メンテナンスが容易になるようにした。  
-[サイトはこちら]([URL](https://lubberduck.dev))
+[サイトはこちら](https://lubberduck.dev)
 
 ## 使用技術
 
